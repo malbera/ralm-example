@@ -1,0 +1,36 @@
+title: RAML example api
+baseUri: https://malbera.com/todos/api
+version: v1
+mediaType: application/json
+
+schemas:
+  - todo: !include todo.json
+
+/todos:
+  description: "The Todos resource."
+  get:
+    description: "Returns a list of todos."
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [
+                { "id": 1, "task": "Design the API", "priority": 1 },
+                { "id": 2, "task": "Generate the interfaces", "priority": 2 }
+              ]
+  /{id}:
+    uriParameters:
+      id:
+        type: integer
+    get:
+      description: "Return the todo with given id."
+      responses:
+        200:
+          body:
+            application/json:
+              schema: todo
+              example: |
+                 { "id": 1, "task": "Design the API", "priority": 1 }
+        404:
+          description: "Todo with provided id not found"

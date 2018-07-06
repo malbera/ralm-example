@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "description": "A Todo item",
+  "id": "Todo",
+  "javaType": "com.raml.example.api.Todo",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "long",
+      "required": false
+    },
+    "task": {
+      "type": "string",
+      "required": true
+    },
+    "priority": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}
