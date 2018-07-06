@@ -1,4 +1,4 @@
-package com.raml.example;
+package com.raml.example.impl;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
