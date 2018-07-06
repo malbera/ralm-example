@@ -1,36 +1,101 @@
-title: RAML example api
-baseUri: https://malbera.com/todos/api
+#%RAML 1.0
+title: Baeldung Foo REST Services API
 version: v1
+protocols: [ HTTPS ]
+baseUri: http://rest-api.baeldung.com/api/{version}
 mediaType: application/json
-
-schemas:
-  - todo: !include todo.json
-
-/todos:
-  description: "The Todos resource."
-  get:
-    description: "Returns a list of todos."
+securedBy: basicAuth
+securitySchemes:
+  basicAuth:
+    description: |
+      Each request must contain the headers necessary for
+      basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: |
+            Used to send the Base64 encoded "username:password"
+            credentials
+            type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to
+            access the content provided by the requested URL.
+types:
+  Foo:   !include Foo.raml
+  Bar:   !include Bar.raml
+  Error: !include Error.raml
+resourceTypes:
+  collection:
+    usage: Use this resourceType to represent a collection of items
+    description: A collection of <<resourcePathName|!uppercamelcase>>
+    get:
+      description: |
+        Get all <<resourcePathName|!uppercamelcase>>,
+        optionally filtered
+      is: [ hasResponseCollection: { typeName: <<typeName>> } ]
+    post:
+      description: |
+        Create a new <<resourcePathName|!uppercamelcase|!singularize>>
+      is: [ hasRequestItem: { typeName: <<typeName>> } ]
+  item:
+    usage: Use this resourceType to represent any single item
+    description: A single <<typeName>>
+    get:
+      description: Get a <<typeName>>
+      is: [ hasResponseItem: { typeName: <<typeName>> }, hasNotFound ]
+    put:
+      description: Update a <<typeName>>
+      is: [ hasRequestItem: { typeName: <<typeName>> }, hasResponseItem: { typeName: <<typeName>> }, hasNotFound ]
+    delete:
+      description: Delete a <<typeName>>
+      is: [ hasNotFound ]
+      responses:
+        204:
+traits:
+  hasRequestItem:
+    body:
+      application/json:
+        type: <<typeName>>
+  hasResponseItem:
     responses:
       200:
         body:
           application/json:
-            example: |
-              [
-                { "id": 1, "task": "Design the API", "priority": 1 },
-                { "id": 2, "task": "Generate the interfaces", "priority": 2 }
-              ]
-  /{id}:
-    uriParameters:
-      id:
-        type: integer
+            type: <<typeName>>
+  hasResponseCollection:
+    responses:
+      200:
+        body:
+          application/json:
+            type: <<typeName>>[]
+  hasNotFound:
+    responses:
+      404:
+        body:
+          application/json:
+            type: Error
+            example: !include Error.json
+/foos:
+  type: { collection: { typeName: Foo } }
+  get:
+    queryParameters:
+      name?: string
+      ownerName?: string
+  /{fooId}:
+    type: { item: { typeName: Foo } }
+  /name/{name}:
     get:
-      description: "Return the todo with given id."
-      responses:
-        200:
-          body:
-            application/json:
-              schema: todo
-              example: |
-                 { "id": 1, "task": "Design the API", "priority": 1 }
-        404:
-          description: "Todo with provided id not found"
+      description: List all foos with a certain name
+      is: [ hasResponseCollection: { typeName: Foo } ]
+/bars:
+  type: { collection: { typeName: Bar } }
+  /{barId}:
+    type: { item: { typeName: Bar } }
+  /fooId/{fooId}:
+    get:
+      description: Get all bars for the matching fooId
+      is: [ hasResponseCollection: { typeName: Bar } ]
