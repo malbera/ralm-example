@@ -1,8 +1,8 @@
 #%RAML 1.0
-title: Baeldung Foo REST Services API
+title: RAML examples
 version: v1
 protocols: [ HTTPS ]
-baseUri: http://rest-api.baeldung.com/api/{version}
+baseUri: http://rest-api.testing-raml.com/api/{version}
 mediaType: application/json
 securedBy: basicAuth
 securitySchemes:
@@ -25,7 +25,6 @@ securitySchemes:
             combination is invalid, or the user is not allowed to
             access the content provided by the requested URL.
 types:
-  Foo:   !include Foo.raml
   Bar:   !include Bar.raml
   Error: !include Error.raml
 resourceTypes:
@@ -79,18 +78,6 @@ traits:
           application/json:
             type: Error
             example: !include Error.json
-/foos:
-  type: { collection: { typeName: Foo } }
-  get:
-    queryParameters:
-      name?: string
-      ownerName?: string
-  /{fooId}:
-    type: { item: { typeName: Foo } }
-  /name/{name}:
-    get:
-      description: List all foos with a certain name
-      is: [ hasResponseCollection: { typeName: Foo } ]
 /bars:
   type: { collection: { typeName: Bar } }
   /{barId}:
